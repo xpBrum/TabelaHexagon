@@ -1,0 +1,58 @@
+using Microsoft.AspNetCore.Mvc;
+using System.Collections.Generic;
+using System.Linq;
+
+[ApiController]
+[Route("api/[controller]")]
+public class PessoasController : ControllerBase
+{
+    private static List<Pessoa> pessoas = new List<Pessoa>();
+
+    [HttpGet]
+    public IActionResult GetPessoas()
+    {
+        return Ok(pessoas);
+    }
+
+    [HttpPost]
+    public IActionResult AddPessoa([FromBody] Pessoa novaPessoa)
+    {
+        pessoas.Add(novaPessoa);
+        return Ok(novaPessoa);
+    }
+
+    [HttpPut("{cpf}")]
+    public IActionResult EditPessoa(string cpf, [FromBody] Pessoa pessoaAtualizada)
+    {
+        var pessoa = pessoas.FirstOrDefault(p => p.CPF == cpf);
+        if (pessoa == null) return NotFound();
+        
+        pessoa.Nome = pessoaAtualizada.Nome;
+        pessoa.Idade = pessoaAtualizada.Idade;
+        pessoa.EstadoCivil = pessoaAtualizada.EstadoCivil;
+        pessoa.Cidade = pessoaAtualizada.Cidade;
+        pessoa.Estado = pessoaAtualizada.Estado;
+        
+        return Ok(pessoa);
+    }
+
+    [HttpDelete("{cpf}")]
+    public IActionResult DeletePessoa(string cpf)
+    {
+        var pessoa = pessoas.FirstOrDefault(p => p.CPF == cpf);
+        if (pessoa == null) return NotFound();
+        
+        pessoas.Remove(pessoa);
+        return NoContent();
+    }
+}
+
+public class Pessoa
+{
+    public string Nome { get; set; }
+    public int Idade { get; set; }
+    public string EstadoCivil { get; set; }
+    public string CPF { get; set; }
+    public string Cidade { get; set; }
+    public string Estado { get; set; }
+}
