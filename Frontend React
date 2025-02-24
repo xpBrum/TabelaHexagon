@@ -1,0 +1,79 @@
+import React, { useEffect, useState } from "react";
+import axios from "axios";
+
+const API_URL = "http://localhost:5000/api/pessoas";
+
+const App = () => {
+  const [pessoas, setPessoas] = useState([]);
+  const [form, setForm] = useState({ nome: "", idade: "", estadoCivil: "", cpf: "", cidade: "", estado: "" });
+
+  useEffect(() => {
+    fetchPessoas();
+  }, []);
+
+  const fetchPessoas = async () => {
+    const response = await axios.get(API_URL);
+    setPessoas(response.data);
+  };
+
+  const handleChange = (e) => {
+    setForm({ ...form, [e.target.name]: e.target.value });
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    await axios.post(API_URL, form);
+    fetchPessoas();
+    setForm({ nome: "", idade: "", estadoCivil: "", cpf: "", cidade: "", estado: "" });
+  };
+
+  const handleDelete = async (cpf) => {
+    await axios.delete(`${API_URL}/${cpf}`);
+    fetchPessoas();
+  };
+
+  return (
+    <div>
+      <h1>Gerenciamento de Pessoas</h1>
+      <form onSubmit={handleSubmit}>
+        <input name="nome" placeholder="Nome" value={form.nome} onChange={handleChange} required />
+        <input name="idade" placeholder="Idade" value={form.idade} onChange={handleChange} required />
+        <input name="estadoCivil" placeholder="Estado Civil" value={form.estadoCivil} onChange={handleChange} required />
+        <input name="cpf" placeholder="CPF" value={form.cpf} onChange={handleChange} required />
+        <input name="cidade" placeholder="Cidade" value={form.cidade} onChange={handleChange} required />
+        <input name="estado" placeholder="Estado" value={form.estado} onChange={handleChange} required />
+        <button type="submit">Adicionar</button>
+      </form>
+      <table>
+        <thead>
+          <tr>
+            <th>Nome</th>
+            <th>Idade</th>
+            <th>Estado Civil</th>
+            <th>CPF</th>
+            <th>Cidade</th>
+            <th>Estado</th>
+            <th>Ações</th>
+          </tr>
+        </thead>
+        <tbody>
+          {pessoas.map((pessoa) => (
+            <tr key={pessoa.cpf}>
+              <td>{pessoa.nome}</td>
+              <td>{pessoa.idade}</td>
+              <td>{pessoa.estadoCivil}</td>
+              <td>{pessoa.cpf}</td>
+              <td>{pessoa.cidade}</td>
+              <td>{pessoa.estado}</td>
+              <td>
+                <button onClick={() => handleDelete(pessoa.cpf)}>Excluir</button>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+};
+
+export default App;
